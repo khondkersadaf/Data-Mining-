@@ -1,0 +1,51 @@
+# Set the working directory to the folder containing the dataset
+setwd("C:/Users/USER/Desktop/DWDM/Mid/Project")
+
+# Load the required packages
+library(class)
+
+# Read the dataset
+wine_data <- read.csv("winequality-white.csv", sep = ";")
+
+# Remove any missing values
+wine_data <- na.omit(wine_data)
+
+# Set the predictor variables and the target variable
+predictor_cols <- names(wine_data)[-ncol(wine_data)]
+target_col <- names(wine_data)[ncol(wine_data)]
+
+# Split the data into training and testing sets
+set.seed(123)
+train_indices <- sample(1:nrow(wine_data), round(0.7 * nrow(wine_data)))
+train_data <- wine_data[train_indices, predictor_cols]
+train_labels <- wine_data[train_indices, target_col]
+test_data <- wine_data[-train_indices, predictor_cols]
+test_labels <- wine_data[-train_indices, target_col]
+
+# Function to perform k-NN with a specified distance measure
+knn_with_distance_measure <- function(train_data, test_data, train_labels, k, distance_measure) {
+  predicted_labels <- knn(train = train_data, test = test_data, cl = train_labels, k = k)
+  return(predicted_labels)
+}
+
+# Set the value of k
+k <- 3
+
+# Apply k-NN with Euclidean distance
+euclidean_predictions <- knn_with_distance_measure(train_data, test_data, train_labels, k, "euclidean")
+
+# Apply k-NN with Manhattan distance
+manhattan_predictions <- knn_with_distance_measure(train_data, test_data, train_labels, k, "manhattan")
+
+# Apply k-NN with Maximum distance
+maximum_predictions <- knn_with_distance_measure(train_data, test_data, train_labels, k, "maximum")
+
+# Evaluate the accuracy of the predictions
+accuracy_euclidean <- sum(euclidean_predictions == test_labels) / length(test_labels)
+accuracy_manhattan <- sum(manhattan_predictions == test_labels) / length(test_labels)
+accuracy_maximum <- sum(maximum_predictions == test_labels) / length(test_labels)
+
+# Print the accuracies
+cat("Accuracy - Euclidean:", accuracy_euclidean, "\n")
+cat("Accuracy - Manhattan:", accuracy_manhattan, "\n")
+cat("Accuracy - Maximum:", accuracy_maximum, "\n")
